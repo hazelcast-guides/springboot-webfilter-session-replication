@@ -1,16 +1,16 @@
-:github-address: https://github.com/hazelcast-guides/springboot-caching
+:github-address: https://github.com/hazelcast-guides/springboot-session-replication
 :templates-url: https://raw.githubusercontent.com/hazelcast-guides/adoc-templates/master
 :hazelcast: Hazelcast IMDG
 :framework: Spring Boot
 = Caching with Spring Boot and Hazelcast
 
-This guide will get you started to use Hazelcast as a cache manager for your Spring Boot application.
+This guide will get you started to use Hazelcast as for the Spring Boot session replication.
 
 include::{templates-url}/link-to-repo.adoc[]
 
 == What You’ll Learn
 
-In this guide, you'll deploy a Spring Boot application which uses Hazelcast as a cache manager.
+In this guide, you'll deploy a Spring Boot application which uses Hazelcast for sessions replication.
 
 == Prerequisites
 
@@ -20,59 +20,55 @@ In this guide, you'll deploy a Spring Boot application which uses Hazelcast as a
 
 == Spring Boot Application
 
-To use caching in your Spring Boot application, you need to:
+In our case, let's have a simple web application with the following controller and HTML template.
 
-- add `org.springframework.boot:spring-boot-starter-cache` dependency
-- add `@EnableCaching` annotation to your main class
-- add `@Cacheable("books")` annotation to every method you want to cache
-
-For more explanation on the Spring Boot cache topic, please check the official Spring Guide: https://spring.io/guides/gs/caching/[Caching Data with Spring].
-
-In our case, let's have a simple web service with two classes defined as follows.
-
-.BookController.java
+.WebController.java
 [source,java]
 ----
-@RestController
-@RequestMapping("/books")
-public class BookController {
-    @Autowired
-    private BookService bookService;
+@Controller
+@RequestMapping("/")
+public class WebController {
 
-    @GetMapping("/{isbn}")
-    public String getBookNameByIsbn(@PathVariable("isbn") String isbn) {
-        return bookService.getBookNameByIsbn(isbn);
-    }
-}
-----
-
-.BookService.java
-[source,java]
-----
-@Service
-public class BookService {
-    @Cacheable("books")
-    public String getBookNameByIsbn(String isbn) {
-        return findBookInSlowSource(isbn);
-    }
-
-    private String findBookInSlowSource(String isbn) {
-        // some long processing
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    @RequestMapping(value = "/")
+    public String index(HttpSession httpSession) {
+        Integer hits = (Integer) httpSession.getAttribute("hits");
+        if (hits == null) {
+            hits = 0;
         }
-        return "Sample Book Name";
+        httpSession.setAttribute("hits", ++hits);
+
+        return "index";
     }
 }
 ----
 
-If we started the application, then every call to the endpoint `/books/<isbn>` would go to the method `findBookNameByIsbn()` which in turn would first check the cache. Only if it does not find value in the cache, the method `findBookInSlowSource()` would be executed.
+.index.html
+[source,html]
+----
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<h3>Session Id</h3>
+		<p th:text="${#httpSession.id}"/>
+		<h3>Hits</h3>
+		<p th:text="${#httpSession.getAttribute('hits')}"/>
+	</body>
+</html>
+----
 
-== Using Hazelcast as Cache Manager
+When you start the application and open the browser at http://localhost:8080, you should see an information with the current session ID and the number of hits (number of times you refreshed the browser).
 
-We want to use Hazelcast as the cache manager. The good news is that all you have to do it to add Hazelcast to your classpath.
+Now, the problem is that if you start two instances of your application, then the counts for each of them would be completely separate. That is because each Spring Boot application replica stores it's sessions separately. What's more, if one of the application crashes, the session data is lost. That is what we want to change with Hazelcast.
+
+== Using Hazelcast for Sessions Replication
+
+To use Hazelcast for session replication in your Spring Boot application, you need to:
+
+- add `hazelcast-all` dependency
+- add Hazelcast configuration
+- add `WebFilter` configuration bean
+
+Here are the added parts in `pom.xml` and `Application.java`.
 
 .pom.xml
 ----
@@ -83,63 +79,60 @@ We want to use Hazelcast as the cache manager. The good news is that all you hav
 </dependency>
 ----
 
-Then, you need to add Hazelcast configuration in one of the following manners:
-
-- Add `hazelcast.yaml` configuration OR
-- Add `hazelcast.xml` configuration OR
-- Define `@Bean` with Hazelcast configuration in the source code
-
-Let’s use the first option and add the following file into `src/main/resources`.
-
-.hazelcast.yaml
-[source,yaml]
+.Application.java
+[source,java]
 ----
-hazelcast:
-  network:
-    join:
-      multicast:
-        enabled: true
+@Bean
+public Config config() {
+    return new Config();
+}
+
+@Bean
+public WebFilter webFilter(HazelcastInstance hazelcastInstance) {
+
+    Properties properties = new Properties();
+    properties.put("instance-name", hazelcastInstance.getName());
+    properties.put("sticky-session", "false");
+
+    return new WebFilter(properties);
+}
 ----
 
-No more configuration needed, Hazelcast is already used as the cache manager for your project!
+This way, we defined Hazelcast configuration and used the embedded Hazelcast instance for the purpose of the session replication.
 
 == Starting the Application
 
-To start the application, run the following command.
+To start two replicas of the application, run the following commands.
 
 ----
 mvn spring-boot:run
+SERVER_PORT=8081 mvn spring-boot:run
 ----
 
-You should see in the logs that embedded Hazelcast has started.
+You should see in the logs that both embedded Hazelcast instances formed one cluster.
 
 ----
-Members {size:1, ver:1} [
-        Member [172.30.63.9]:5701 - 75cd0b19-ee36-4e0a-9d9c-38c49f67f842 this
+Members {size:2, ver:2} [
+        Member [172.24.148.110]:5702 - e01c5b53-4dd8-492c-974c-7f4a7e195fb8 this
+        Member [172.24.148.110]:5701 - 27305639-b75c-4f41-84e5-6cd87995511b
 ]
 ----
 
 == Testing the Application
 
-You can test the application by executing the following command.
+Open the browser at http://localhost:8080. You should see the following content.
 
-----
-curl locahost:8080/books/12345
-Sample Book Name
-----
+image::markdown/application-1.png[]
 
-The first time you execute this command it should take some time to get the response. However, when you try it again, it should be instant. That means that the cache is used.
+Now, open the browser at http://localhost:8081. You should see that the hit has increased.
 
-----
-curl locahost:8080/books/12345
-Sample Book Name
-----
+image::markdown/application-2.png[]
+
+That means that both applications share the same session data store.
 
 == What's more?
 
-Spring Boot is really well integrated with Hazelcast and vice-versa. If you want to use Hazelcast in the client-server topology, then it's enough if you create `hazelcast-client.yaml` file instead of `hazelcast.yaml` on your classpath. And that's it! You configured Hazelcast client.
-
-If you want to read more, check out the official documentation https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-hazelcast[Spring Boot: Hazelcast].
+Spring Boot is really well integrated with Hazelcast. You can check the other guide https://github.com/hazelcast-guides/springboot-caching[Caching with Spring Boot and Hazelcast]. You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
 
 
 
