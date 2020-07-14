@@ -58,7 +58,7 @@ public class WebController {
 
 When you start the application and open the browser at http://localhost:8080, you should see an information with the current session ID and the number of hits (number of times you refreshed the browser).
 
-Now, the problem is that if you start two instances of your application, then the counts for each of them would be completely separate. That is because each Spring Boot application replica stores it's sessions separately. What's more, if one of the application crashes, the session data is lost. That is what we want to change with Hazelcast.
+Now, the problem is that if you start two instances of your application, then the counts for each of them would be completely separate. That is because each Spring Boot application replica stores it's sessions separately. What's more, if one of the application crashes, the session data is lost. That is what we want to change with the use of Hazelcast.
 
 == Using Hazelcast for Sessions Replication
 
@@ -98,7 +98,7 @@ public WebFilter webFilter(HazelcastInstance hazelcastInstance) {
 }
 ----
 
-This way, we defined Hazelcast configuration and used the embedded Hazelcast instance for the purpose of the session replication.
+This way, we defined Hazelcast configuration and used the embedded Hazelcast instance to enable session replication.
 
 == Starting the Application
 
