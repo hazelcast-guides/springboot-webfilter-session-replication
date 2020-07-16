@@ -123,11 +123,11 @@ Members {size:2, ver:2} [
 
 Open the browser at http://localhost:8080. You should see the following content.
 
-image::markdown/application-1.png[]
+image::application-1.png[]
 
 Now, open the browser at http://localhost:8081. You should see that the hit has increased.
 
-image::markdown/application-2.png[]
+image::application-2.png[]
 
 That means that both applications share the same session data store.
 
