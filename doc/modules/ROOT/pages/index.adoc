@@ -1,8 +1,9 @@
 :github-address: https://github.com/hazelcast-guides/springboot-session-replication
-:templates-url: https://raw.githubusercontent.com/hazelcast-guides/adoc-templates/master
+:templates-url: templates:ROOT:page$/
 :hazelcast: Hazelcast IMDG
 :framework: Spring Boot
-= Caching with Spring Boot and Hazelcast
+
+= Session Replication with Spring Boot and Hazelcast
 
 This guide will get you started to use Hazelcast as for the Spring Boot session replication.
 
