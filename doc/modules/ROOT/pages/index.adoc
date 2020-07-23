@@ -133,7 +133,7 @@ That means that both applications share the same session data store.
 
 == What's more?
 
-Spring Boot is really well integrated with Hazelcast. You can check the other guide https://github.com/hazelcast-guides/springboot-caching[Caching with Spring Boot and Hazelcast]. You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
+Spring Boot is really well integrated with Hazelcast. You can check the other guide xref:springboot-caching:ROOT:index.adoc[Caching with Spring Boot and Hazelcast]. You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
 
 
 
