@@ -1,4 +1,4 @@
-:github-address: https://github.com/hazelcast-guides/springboot-session-replication
+:github-address: https://github.com/hazelcast-guides/springboot-webfilter-session-replication
 :templates-url: templates:ROOT:page$/
 :hazelcast: Hazelcast IMDG
 :framework: Spring Boot
@@ -133,7 +133,7 @@ That means that both applications share the same session data store.
 
 == What's more?
 
-Spring Boot is really well integrated with Hazelcast. You can check the other guide xref:springboot-caching:ROOT:index.adoc[Caching with Spring Boot and Hazelcast]. You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
+Spring Boot is really well integrated with Hazelcast. You can check the other guide xref:caching-springboot:ROOT:index.adoc[Caching with Spring Boot and Hazelcast]. You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
 
 
 
