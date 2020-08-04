@@ -107,8 +107,8 @@ To start two replicas of the application, run the following commands.
 
 [source,bash]
 ----
-$ mvn spring-boot:run
-$ SERVER_PORT=8081 mvn spring-boot:run
+mvn spring-boot:run
+SERVER_PORT=8081 mvn spring-boot:run
 ----
 
 You should see in the logs that both embedded Hazelcast instances formed a cluster.
