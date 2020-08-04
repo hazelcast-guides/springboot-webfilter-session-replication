@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <version.hazelcast>4.0.2</version.hazelcast>
     </properties>
 
     <dependencies>
@@ -33,7 +34,7 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-all</artifactId>
-            <version>4.0.2</version>
+            <version>${version.hazelcast}</version>
         </dependency>
 
         <dependency>

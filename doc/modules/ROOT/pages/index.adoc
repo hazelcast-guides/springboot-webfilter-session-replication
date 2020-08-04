@@ -5,13 +5,13 @@
 
 = Session Replication with Spring Boot and Hazelcast
 
-This guide will get you started to use Hazelcast as for the Spring Boot session replication.
+This guide will get you started to use Hazelcast for the Spring Boot session replication.
 
 include::{templates-url}/link-to-repo.adoc[]
 
 == What You’ll Learn
 
-In this guide, you'll deploy a Spring Boot application which uses Hazelcast for sessions replication.
+In this guide, you'll deploy two Spring Boot applications which use Hazelcast for session replication.
 
 == Prerequisites
 
@@ -21,7 +21,7 @@ In this guide, you'll deploy a Spring Boot application which uses Hazelcast for 
 
 == Spring Boot Application
 
-In our case, let's have a simple web application with the following controller and HTML template.
+Let's have a simple web application with the following controller and the HTML template.
 
 .WebController.java
 [source,java]
@@ -57,9 +57,9 @@ public class WebController {
 </html>
 ----
 
-When you start the application and open the browser at http://localhost:8080, you should see an information with the current session ID and the number of hits (number of times you refreshed the browser).
+When you start the application and open the browser at http://localhost:8080, you should see a piece of information with the current session ID and the number of hits (number of times you refreshed the browser).
 
-Now, the problem is that if you start two instances of your application, then the counts for each of them would be completely separate. That is because each Spring Boot application replica stores it's sessions separately. What's more, if one of the application crashes, the session data is lost. That is what we want to change with the use of Hazelcast.
+Now, the problem is that if you start two instances of your application, then the counts for each of them would be completely separate. That is because each Spring Boot application replica stores its sessions separately. What's more, if the application crashes, the session data stored in that instance will be lost. That is what we want to change with the use of Hazelcast.
 
 == Using Hazelcast for Sessions Replication
 
@@ -76,7 +76,7 @@ Here are the added parts in `pom.xml` and `Application.java`.
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-all</artifactId>
-    <version>4.0.2</version>
+    <version>${version.hazelcast}</version>
 </dependency>
 ----
 
@@ -99,18 +99,19 @@ public WebFilter webFilter(HazelcastInstance hazelcastInstance) {
 }
 ----
 
-This way, we defined Hazelcast configuration and used the embedded Hazelcast instance to enable session replication.
+This way, we defined a Hazelcast configuration and used an embedded Hazelcast instance to enable session replication.
 
 == Starting the Application
 
 To start two replicas of the application, run the following commands.
 
+[source,bash]
 ----
 mvn spring-boot:run
 SERVER_PORT=8081 mvn spring-boot:run
 ----
 
-You should see in the logs that both embedded Hazelcast instances formed one cluster.
+You should see in the logs that both embedded Hazelcast instances formed a cluster.
 
 ----
 Members {size:2, ver:2} [
@@ -129,11 +130,16 @@ Now, open the browser at http://localhost:8081. You should see that the hit has 
 
 image::application-2.png[]
 
-That means that both applications share the same session data store.
+That means both applications share the same session data store.
 
 == What's more?
 
-Spring Boot is really well integrated with Hazelcast. You can check the other guide xref:caching-springboot:ROOT:index.adoc[Caching with Spring Boot and Hazelcast]. You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
+Spring Boot is integrated well with Hazelcast. You can check other Spring Boot guides:
+
+- xref:caching-springboot:ROOT:index.adoc[Caching with Spring Boot and Hazelcast]
+- xref:springboot-hibernate:ROOT:index.adoc[Hibernate Second-Level Cache by Hazelcast]
+
+You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
 
 
 
