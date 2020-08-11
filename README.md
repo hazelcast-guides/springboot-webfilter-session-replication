@@ -1,1 +1,1 @@
-See the guide [here](https://hazelcast-guides.github.io/guides-site/springboot-webfilter-session-replication/index.html).
+See the guide [here](https://guides.hazelcast.org/springboot-webfilter-session-replication).
