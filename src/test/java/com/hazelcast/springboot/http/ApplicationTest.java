@@ -1,7 +1,9 @@
 package com.hazelcast.springboot.http;
 
+import com.hazelcast.config.Config;
 import org.junit.Test;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,8 +32,8 @@ public class ApplicationTest {
     }
 
     private static String startApplication() {
-        return new SpringApplicationBuilder(Application.class)
-                .properties("server.port=0")
+        return new SpringApplicationBuilder(TestApplication.class)
+                .properties("server.port=0", "spring.main.allow-bean-definition-overriding=true")
                 .run()
                 .getEnvironment()
                 .getProperty("local.server.port");
@@ -56,5 +58,16 @@ public class ApplicationTest {
             headers.add("Cookie", String.format("JSESSIONID=%s;hazelcast.sessionId=%s", sessionId, hazelcastSessionId));
         }
         return restTemplate.exchange("http://localhost:" + port, HttpMethod.GET, new HttpEntity<Object>(headers), String.class);
+    }
+
+    public static class TestApplication extends Application {
+
+        @Bean
+        public Config config() {
+            Config config = super.config(); // Keep the test sync with the published content.
+            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(true);
+            return config;
+        }
+
     }
 }
