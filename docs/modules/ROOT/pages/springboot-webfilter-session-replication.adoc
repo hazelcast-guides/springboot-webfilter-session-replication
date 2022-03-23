@@ -1,21 +1,20 @@
-:github-address: https://github.com/hazelcast-guides/springboot-webfilter-session-replication
-:templates-url: templates:ROOT:page$/
-:hazelcast: Hazelcast IMDG
-:framework: Spring Boot
-
 = Session Replication with Spring Boot and Hazelcast
-
-This guide will get you started to use Hazelcast for the Spring Boot session replication.
-
-include::{templates-url}/link-to-repo.adoc[]
+:templates-url: templates:ROOT:page$/
+:page-layout: tutorial
+:page-product: platform
+:page-categories: Caching, Spring Boot, Session Replication
+:page-lang: java
+:page-edition: 
+:page-est-time: 5 mins
+:framework: Spring Boot
+:description: In this tutorial, you'll deploy two Spring Boot applications which use Hazelcast for session replication.
 
 == What You’ll Learn
 
-In this guide, you'll deploy two Spring Boot applications which use Hazelcast for session replication.
+{description}
 
-== Prerequisites
+== Before you Begin
 
-- ~5 minutes
 - JDK 1.8+
 - Apache Maven 3.2+
 
@@ -120,7 +119,7 @@ Members {size:2, ver:2} [
 ]
 ----
 
-== Testing the Application
+== Test the Application
 
 Open the browser at http://localhost:8080. You should see the following content.
 
@@ -132,14 +131,14 @@ image::application-2.png[]
 
 That means both applications share the same session data store.
 
-== What's more?
+== See Also
 
 Spring Boot is integrated well with Hazelcast. You can check other Spring Boot guides:
 
-- xref:caching-springboot:ROOT:index.adoc[Caching with Spring Boot and Hazelcast]
-- xref:springboot-hibernate:ROOT:index.adoc[Hibernate Second-Level Cache by Hazelcast]
+- xref:caching-springboot.adoc[]
+- xref:springboot-hibernate.adoc[]
 
-You can also set up your Hazelcast in the client-server topology instead of using embedded Hazelcast.
+You can also set up your Hazelcast in the client/server topology instead of using embedded Hazelcast.
 
 
 
